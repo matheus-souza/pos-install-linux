@@ -1,5 +1,9 @@
 # pos-install-linux
 
+[![Lint](https://img.shields.io/github/actions/workflow/status/matheus-souza/pos-install-linux/lint.yml?label=lint)](https://github.com/matheus-souza/pos-install-linux/actions/workflows/lint.yml)
+[![Test](https://img.shields.io/github/actions/workflow/status/matheus-souza/pos-install-linux/test.yml?label=test)](https://github.com/matheus-souza/pos-install-linux/actions/workflows/test.yml)
+[![Idempotence](https://img.shields.io/github/actions/workflow/status/matheus-souza/pos-install-linux/idempotence.yml?label=idempotence)](https://github.com/matheus-souza/pos-install-linux/actions/workflows/idempotence.yml)
+
 Scripts de pós-instalação para Linux (Zorin OS 18 / Ubuntu 24.04 Noble).
 
 Este repositório automatiza a instalação e configuração de programas após uma instalação limpa do sistema.
@@ -39,7 +43,7 @@ chmod +x run.sh
 O `run.sh` executa, nesta ordem:
 
 1. Atualiza o sistema (`apt update`, `apt upgrade`, `apt dist-upgrade`).
-2. Instala `ttf-mscorefonts-installer`.
+2. (Opcional) Instala fontes da Microsoft (`ttf-mscorefonts-installer`).
 3. Remove programas desnecessários (use `--full` para remover também LibreOffice e GNOME Terminal).
 4. Instala programas via `apt`.
 5. Instala programas via `snap`.

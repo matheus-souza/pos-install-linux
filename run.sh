@@ -76,9 +76,8 @@ main() {
     # 1. Atualizar sistema
     update_upgrade
 
-    # 2. Instalar fontes da Microsoft (aceita EULA automaticamente)
-    log_info "Instalando ttf-mscorefonts-installer..."
-    sudo apt install -y ttf-mscorefonts-installer
+    # 2. (Opcional) Instalar fontes da Microsoft
+    # sudo apt install -y ttf-mscorefonts-installer
 
     # 3. Remover programas desnecessários
     programs_to_remove

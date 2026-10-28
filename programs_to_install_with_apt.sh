@@ -19,21 +19,14 @@ sudo apt update
 
 APT_PROGRAMAS=(
     git
-    git-flow
     curl
     vim
     neofetch
     tree
     sshfs
     fprintd
-    gimp
-    inkscape
-    unrar
-    ubuntu-restricted-extras
     language-pack-gnome-pt
     language-pack-gnome-pt-base
-    deepin-screen-recorder
-    deepin-calculator
 )
 
 log_info "Instalando ${#APT_PROGRAMAS[@]} pacotes via apt..."

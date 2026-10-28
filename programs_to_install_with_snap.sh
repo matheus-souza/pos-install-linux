@@ -3,6 +3,7 @@ set -euo pipefail
 
 # ============================================================================
 # programs_to_install_with_snap.sh — Pacotes instalados via snap
+# Nenhum snap está instalado nesta máquina. Lista mantida para referência futura.
 # ============================================================================
 
 log_info() {
@@ -13,18 +14,16 @@ log_error() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $*" >&2
 }
 
-SNAP_PROGRAMS=(
-    mailspring
-    spotify
-    postman
-)
+SNAP_PROGRAMS=()
 
-SNAP_CLASSIC_PROGRAMS=(
-    gitkraken
-    slack
-)
+SNAP_CLASSIC_PROGRAMS=()
 
-log_info "Instalando snaps clássicos..."
+if [[ ${#SNAP_PROGRAMS[@]} -eq 0 && ${#SNAP_CLASSIC_PROGRAMS[@]} -eq 0 ]]; then
+    log_info "Nenhum programa configurado para instalação via snap. Pulando."
+    exit 0
+fi
+
+log_info "Instalando snaps..."
 
 for program in "${SNAP_PROGRAMS[@]}"; do
     if snap list "$program" >/dev/null 2>&1; then
