@@ -25,8 +25,6 @@ APT_PROGRAMAS=(
     tree
     sshfs
     fprintd
-    language-pack-gnome-pt
-    language-pack-gnome-pt-base
 )
 
 log_info "Instalando ${#APT_PROGRAMAS[@]} pacotes via apt..."
