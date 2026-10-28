@@ -1,0 +1,27 @@
+name: Test
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  syntax-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y bash
+
+      - name: Validate bash syntax of all scripts
+        run: |
+          bash -n run.sh
+          for f in programs/*.sh programs_to_install_with_apt.sh programs_to_install_with_snap.sh programs_to_remove.sh configure_rm_unused_snaps.sh; do
+            echo "Validando: $f"
+            bash -n "$f"
+          done
+        shell: bash

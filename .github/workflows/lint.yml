@@ -1,0 +1,26 @@
+name: Lint
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  shellcheck:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt update && sudo apt install -y shellcheck
+
+      - name: Run shellcheck on all scripts
+        run: |
+          shellcheck \
+            run.sh \
+            programs/*.sh \
+            programs_to_install_with_apt.sh \
+            programs_to_install_with_snap.sh \
+            programs_to_remove.sh \
+            configure_rm_unused_snaps.sh

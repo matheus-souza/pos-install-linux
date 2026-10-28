@@ -1,0 +1,63 @@
+name: Idempotence
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  idempotence:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y bash wget curl gnupg ca-certificates sudo
+
+      - name: Create and run idempotence test
+        run: |
+          cat > /tmp/test-idempotence.sh <<'EOF'
+          #!/bin/bash
+          set -euo pipefail
+
+          SCRIPTS=(
+            "programs/chrome.sh"
+            "programs/docker.sh"
+            "programs/fira-code.sh"
+            "programs/insync.sh"
+            "programs/jetbrains-toolbox.sh"
+            "programs/sublime-text.sh"
+            "programs/vscode.sh"
+            "programs/zsh.sh"
+            "programs/fingerprint.sh"
+            "programs/swapfile.sh"
+            "programs/environment.sh"
+            "programs/dev-tools.sh"
+            "programs/ssh.sh"
+            "programs/browsers.sh"
+            "programs_to_install_with_apt.sh"
+            "programs_to_install_with_snap.sh"
+            "programs_to_remove.sh"
+            "configure_rm_unused_snaps.sh"
+          )
+
+          for script in "${SCRIPTS[@]}"; do
+            if [[ ! -f "$script" ]]; then
+              echo "AVISO: $script não encontrado, pulando."
+              continue
+            fi
+
+            echo "=== Primeira execução: $script ==="
+            bash "$script" || { echo "FALHOU na primeira execução: $script"; exit 1; }
+
+            echo "=== Segunda execução: $script ==="
+            bash "$script" || { echo "NÃO É IDEMPOTENTE: $script falhou na segunda execução"; exit 1; }
+          done
+
+          echo "OK: todos os scripts são idempotentes."
+          EOF
+          chmod +x /tmp/test-idempotence.sh
+          bash /tmp/test-idempotence.sh
