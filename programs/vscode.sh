@@ -1,54 +1,102 @@
 #!/bin/bash
+set -euo pipefail
 
-sudo apt update
+# ============================================================================
+# programs/vscode.sh — Instala Visual Studio Code e extensões
+# Usa signed-by com keyring (método moderno do apt, sem apt-key)
+# Mantém o repositório para atualizações futuras.
+# ============================================================================
 
-sudo apt install -y software-properties-common apt-transport-https wget
+log_info() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $*"
+}
 
-wget -q https://packages.microsoft.com/keys/microsoft.asc -O- | sudo apt-key add -
+log_error() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $*" >&2
+}
 
-sudo add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
+KEYRING="/etc/apt/keyrings/packages.microsoft.gpg"
+SOURCE_LIST="/etc/apt/sources.list.d/vscode.sources"
+SETTINGS_FILE="$HOME/.config/Code/User/settings.json"
 
-sudo apt update
+if dpkg -s code >/dev/null 2>&1; then
+    log_info "Visual Studio Code já está instalado. Pulando instalação do pacote."
+else
+    log_info "Instalando dependências..."
+    sudo apt update
+    sudo apt install -y software-properties-common apt-transport-https wget gnupg
 
-sudo apt install -y code
+    log_info "Baixando chave GPG da Microsoft..."
+    sudo mkdir -p /etc/apt/keyrings
+    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | \
+        sudo gpg --dearmor -o "$KEYRING"
+    sudo chmod a+r "$KEYRING"
 
-code --install-extension alefragnani.Bookmarks
-code --install-extension bierner.github-markdown-preview
-code --install-extension bierner.markdown-checkbox
-code --install-extension bierner.markdown-emoji
-code --install-extension bierner.markdown-preview-github-styles
-code --install-extension bierner.markdown-yaml-preamble
-code --install-extension christian-kohler.path-intellisense
-code --install-extension codezombiech.gitignore
-code --install-extension CoenraadS.bracket-pair-colorizer-2
-code --install-extension DavidAnson.vscode-markdownlint
-code --install-extension dracula-theme.theme-dracula
-code --install-extension eamodio.gitlens
-code --install-extension EditorConfig.EditorConfig
-code --install-extension HookyQR.beautify
-code --install-extension hoovercj.vscode-power-mode
-code --install-extension isudox.vscode-jetbrains-keybindings
-code --install-extension mathiasfrohlich.Kotlin
-code --install-extension mikestead.dotenv
-code --install-extension ms-azuretools.vscode-docker
-code --install-extension MS-CEINTL.vscode-language-pack-pt-BR
-code --install-extension ms-python.python
-code --install-extension ms-python.vscode-pylance
-code --install-extension ms-toolsai.jupyter
-code --install-extension ms-toolsai.jupyter-keymap
-code --install-extension ms-toolsai.jupyter-renderers
-code --install-extension ms-vsliveshare.vsliveshare
-code --install-extension naumovs.color-highlight
-code --install-extension PKief.material-icon-theme
-code --install-extension rebornix.ruby
-code --install-extension ritwickdey.LiveServer
-code --install-extension shd101wyy.markdown-preview-enhanced
-code --install-extension streetsidesoftware.code-spell-checker
-code --install-extension streetsidesoftware.code-spell-checker-portuguese-brazilian
-code --install-extension wingrunr21.vscode-ruby
+    log_info "Adicionando repositório do VS Code..."
+    echo "deb [arch=amd64 signed-by=${KEYRING}] https://packages.microsoft.com/repos/code stable main" | \
+        sudo tee "$SOURCE_LIST" > /dev/null
 
-wget https://gist.githubusercontent.com/matheus-souza/403a803e224de02742a072ca809a0df0/raw/b7c2c3ab4dbe8374a7c7f6b7e50589b3a41fef45/vscode.settings.json -O ~/.config/Code/User/settings.json
+    log_info "Atualizando repositórios e instalando code..."
+    sudo apt update
+    sudo apt install -y code
+fi
 
-sudo rm -f /etc/apt/sources.list.d/vscode.list
+# Extensões do VS Code (versões ativas; removidas extensões descontinuadas)
+VSCODE_EXTENSIONS=(
+    alefragnani.Bookmarks
+    bierner.github-markdown-preview
+    bierner.markdown-checkbox
+    bierner.markdown-emoji
+    bierner.markdown-preview-github-styles
+    bierner.markdown-yaml-preamble
+    christian-kohler.path-intellisense
+    codezombiech.gitignore
+    DavidAnson.vscode-markdownlint
+    dracula-theme.theme-dracula
+    eamodio.gitlens
+    EditorConfig.EditorConfig
+    HookyQR.beautify
+    isudox.vscode-jetbrains-keybindings
+    mathiasfrohlich.Kotlin
+    mikestead.dotenv
+    ms-azuretools.vscode-docker
+    MS-CEINTL.vscode-language-pack-pt-BR
+    ms-python.python
+    ms-python.vscode-pylance
+    ms-toolsai.jupyter
+    ms-toolsai.jupyter-keymap
+    ms-toolsai.jupyter-renderers
+    naumovs.color-highlight
+    PKief.material-icon-theme
+    ritwickdey.LiveServer
+    shd101wyy.markdown-preview-enhanced
+    streetsidesoftware.code-spell-checker
+    streetsidesoftware.code-spell-checker-portuguese-brazilian
+)
 
-xdg-mime default dde-file-manager.desktop inode/directory application/x-gnome-saved-search
+log_info "Instalando ${#VSCODE_EXTENSIONS[@]} extensões do VS Code..."
+for ext in "${VSCODE_EXTENSIONS[@]}"; do
+    if code --list-extensions 2>/dev/null | grep -qx "$ext"; then
+        log_info "Extensão já instalada: $ext"
+    else
+        log_info "Instalando extensão: $ext..."
+        code --install-extension "$ext" || log_error "Falha ao instalar $ext (continuando)."
+    fi
+done
+
+log_info "Baixando settings.json..."
+mkdir -p "$(dirname "$SETTINGS_FILE")"
+if [[ ! -f "$SETTINGS_FILE" ]]; then
+    wget -qO "$SETTINGS_FILE" \
+        "https://gist.githubusercontent.com/matheus-souza/403a803e224de02742a072ca809a0df0/raw/b7c2c3ab4dbe8374a7c7f6b7e50589b3a41fef45/vscode.settings.json" || \
+        log_error "Falha ao baixar settings.json (ignorado)."
+fi
+
+# Configura DDE file manager como padrão para pastas (opcional)
+if command -v xdg-mime >/dev/null 2>&1; then
+    log_info "Configurando DDE File Manager como padrão para pastas..."
+    xdg-mime default dde-file-manager.desktop inode/directory application/x-gnome-saved-search || \
+        log_error "Falha ao configurar xdg-mime (ignorado)."
+fi
+
+log_info "Visual Studio Code configurado com sucesso."

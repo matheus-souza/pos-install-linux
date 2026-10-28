@@ -1,66 +1,117 @@
 #!/bin/bash
+set -euo pipefail
+
+# ============================================================================
+# run.sh — Orquestrador de pós-instalação (Zorin OS 18 / Ubuntu 24.04 Noble)
+# ============================================================================
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+log_info() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $*"
+}
+
+log_error() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $*" >&2
+}
+
+# Verifica se o script tem privilégios de sudo
+check_sudo() {
+    if ! sudo -n true 2>/dev/null; then
+        log_error "Este script requer privilégios de sudo. Execute com: sudo ./run.sh ou configure o sudo sem senha."
+        exit 1
+    fi
+}
+
+# Limpa locks de apt/dpkg em caso de falha (apenas se existirem)
+cleanup_locks() {
+    log_info "Limpando locks de apt/dpkg, se existirem..."
+    sudo rm -f /var/lib/apt/lists/lock \
+               /var/lib/dpkg/lock \
+               /var/lib/dpkg/lock-frontend \
+               /var/cache/apt/archives/lock 2>/dev/null || true
+    sudo dpkg --configure -a 2>/dev/null || true
+}
+
+trap cleanup_locks EXIT
 
 programs_to_remove() {
-    ./programs_to_remove.sh
+    log_info "Removendo programas desnecessários..."
+    "${SCRIPT_DIR}/programs_to_remove.sh"
 }
 
 programs_to_install_with_apt() {
-    ./programs_to_install_with_apt.sh
+    log_info "Instalando programas via apt..."
+    "${SCRIPT_DIR}/programs_to_install_with_apt.sh"
 }
 
 programs_to_install_with_snap() {
-    ./programs_to_install_with_snap.sh
+    log_info "Instalando programas via snap..."
+    "${SCRIPT_DIR}/programs_to_install_with_snap.sh"
 }
 
 configure_rm_unused_snaps() {
-    ./configure_rm_unused_snaps.sh
-}
-
-disable_locks() {
-    sudo rm /var/lib/apt/lists/lock
-    sudo rm /var/lib/dpkg/lock
-    sudo rm /var/lib/dpkg/lock-frontend
-    sudo rm /var/cache/apt/archives/lock
-}
-
-enable_locks() {
-    sudo dpkg --configure -a
+    log_info "Configurando remoção de snaps não usados..."
+    "${SCRIPT_DIR}/configure_rm_unused_snaps.sh"
 }
 
 update_upgrade() {
-    sudo apt update && sudo apt upgrade -y && sudo apt dist-upgrade -y
+    log_info "Atualizando repositórios e pacotes..."
+    sudo apt update
+    sudo apt upgrade -y
+    sudo apt dist-upgrade -y
 }
 
 autoremove_autoclean() {
-    sudo apt autoremove -y && sudo apt autoclean -y
+    log_info "Removendo dependências órfãs e limpando cache..."
+    sudo apt autoremove -y
+    sudo apt autoclean -y
 }
 
-update_upgrade
+main() {
+    check_sudo
 
-disable_locks
+    log_info "=== Iniciando pós-instalação ==="
 
-update_upgrade
+    # 1. Atualizar sistema
+    update_upgrade
 
-# install ttf-mscorefonts-installer
-sudo apt install ttf-mscorefonts-installer -y
+    # 2. Instalar fontes da Microsoft (aceita EULA automaticamente)
+    log_info "Instalando ttf-mscorefonts-installer..."
+    sudo apt install -y ttf-mscorefonts-installer
 
-programs_to_remove
+    # 3. Remover programas desnecessários
+    programs_to_remove
 
-update_upgrade
-autoremove_autoclean
+    # 4. Atualizar novamente após remoções
+    update_upgrade
+    autoremove_autoclean
 
-programs_to_install_with_apt
+    # 5. Instalar programas via apt
+    programs_to_install_with_apt
 
-programs_to_install_with_snap
+    # 6. Instalar programas via snap
+    programs_to_install_with_snap
 
-for program in programs/*.sh; do
-    ./$program
-done
+    # 7. Executar scripts de configuração em programs/
+    for program in "${SCRIPT_DIR}"/programs/*.sh; do
+        log_info "Executando $(basename "${program}")..."
+        bash "${program}"
+    done
 
-update_upgrade
-autoremove_autoclean
-enable_locks
+    # 8. Limpeza final
+    update_upgrade
+    autoremove_autoclean
 
-gsettings set org.freedesktop.ibus.panel.emoji unicode-hotkey "@as []"
+    # 9. Configurações do sistema
+    log_info "Aplicando configurações do sistema..."
+    gsettings set org.freedesktop.ibus.panel.emoji unicode-hotkey "@as []" || \
+        log_error "Falha ao aplicar gsettings do ibus (ignorado)."
 
-configure_rm_unused_snaps
+    # 10. Remover snaps não usados
+    configure_rm_unused_snaps
+
+    log_info "=== Pós-instalação concluída com sucesso ==="
+}
+
+main "$@"

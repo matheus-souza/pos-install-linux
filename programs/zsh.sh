@@ -1,46 +1,69 @@
 #!/bin/bash
+set -euo pipefail
 
-sudo apt install -y zsh curl git
+# ============================================================================
+# programs/zsh.sh — Instala zsh, Oh My Zsh, tema Spaceship e Zinit
+# Idempotente: verifica se cada componente já está instalado.
+# ============================================================================
 
-chsh -s $(which zsh)
+log_info() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $*"
+}
 
-export RUNZSH=no
+log_error() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $*" >&2
+}
 
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+# 1. Instalar zsh, curl, git se necessário
+if ! command -v zsh >/dev/null 2>&1; then
+    log_info "Instalando zsh, curl, git..."
+    sudo apt update
+    sudo apt install -y zsh curl git
+else
+    log_info "zsh já está instalado."
+fi
 
-source ~/.zshrc
+# 2. Oh My Zsh
+OMZ_DIR="${HOME}/.oh-my-zsh"
+if [[ ! -d "$OMZ_DIR" ]]; then
+    log_info "Instalando Oh My Zsh (não interativo)..."
+    export RUNZSH=no
+    export KEEP_ZSHRC=yes
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended || \
+        log_error "Falha ao instalar Oh My Zsh (continuando)."
+else
+    log_info "Oh My Zsh já está instalado."
+fi
 
-git clone https://github.com/denysdovhan/spaceship-prompt.git "$ZSH_CUSTOM/themes/spaceship-prompt" --depth=1 && ln -s "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
+# 3. Tema Spaceship
+SPACESHIP_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/spaceship-prompt"
+if [[ ! -d "$SPACESHIP_DIR" ]]; then
+    log_info "Instalando tema Spaceship..."
+    git clone https://github.com/spaceship-prompt/spaceship-prompt.git "$SPACESHIP_DIR" --depth=1 || \
+        log_error "Falha ao clonar Spaceship (continuando)."
+    ln -sf "$SPACESHIP_DIR/spaceship.zsh-theme" "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/spaceship.zsh-theme" || true
+else
+    log_info "Tema Spaceship já está instalado."
+fi
 
-cat <<EOT >> ~/.zshrc
-SPACESHIP_PROMPT_ORDER=(
-  user          # Username section
-  dir           # Current directory section
-  host          # Hostname section
-  git           # Git section (git_branch + git_status)
-  hg            # Mercurial section (hg_branch  + hg_status)
-  exec_time     # Execution time
-  line_sep      # Line break
-  vi_mode       # Vi-mode indicator
-  jobs          # Background jobs indicator
-  exit_code     # Exit code section
-  char          # Prompt character
-)
-SPACESHIP_USER_SHOW=always
-SPACESHIP_PROMPT_ADD_NEWLINE=false
-SPACESHIP_CHAR_SYMBOL="❯"
-SPACESHIP_CHAR_SUFFIX=" "
-EOT
+# 4. Zinit (zdharma-continuum, nome atualizado)
+ZINIT_DIR="${HOME}/.local/share/zinit/zinit.git"
+if [[ ! -d "$ZINIT_DIR" ]]; then
+    log_info "Instalando Zinit..."
+    bash -c "$(curl --fail --show-error --silent --location https://raw.githubusercontent.com/zdharma-continuum/zinit/HEAD/scripts/install.sh)" || \
+        log_error "Falha ao instalar Zinit (continuando)."
+else
+    log_info "Zinit já está instalado."
+fi
 
-sed -i 's/robbyrussell/spaceship/g' ~/.zshrc
+# 5. Definir zsh como shell padrão (se ainda não for)
+if [[ "$(getent passwd "$USER" | cut -d: -f7)" != "$(command -v zsh)" ]]; then
+    log_info "Definindo zsh como shell padrão para $USER..."
+    sudo chsh -s "$(command -v zsh)" "$USER" || \
+        log_error "Falha ao definir zsh como shell padrão (faça manualmente: chsh -s $(which zsh))."
+else
+    log_info "zsh já é o shell padrão."
+fi
 
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zinit/master/doc/install.sh)" &
-PID=$!
-
-wait $PID
-sed "/^### End of Zinit's installer chunk$/r"<(
-    echo "zinit light zdharma/fast-syntax-highlighting"
-    echo "zinit light zsh-users/zsh-autosuggestions"
-    echo "zinit light zsh-users/zsh-completions"
-    echo -e "\n"
-) -i -- ~/.zshrc
+log_info "Configuração do zsh concluída."
+log_info "Reinicie o terminal ou execute: zsh"
