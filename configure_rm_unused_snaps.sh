@@ -3,7 +3,7 @@ set -euo pipefail
 
 # ============================================================================
 # configure_rm_unused_snaps.sh — Instala o utilitário remove-unused-snaps
-# Baixa o script de um Gist e o coloca em /usr/local/bin
+# Copia o script de config/remove-unused-snaps.sh para /usr/local/bin
 # ============================================================================
 
 log_info() {
@@ -14,27 +14,18 @@ log_error() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $*" >&2
 }
 
-GIST_URL="https://gist.githubusercontent.com/matheus-souza/49f7fb27eea56a230be1bd5942c8cc31/raw/bd08e376811996e5ab867a4c06cc52ffffb92dc5/remove-unused-snaps"
-DEST_DIR="$HOME/Downloads"
-DEST_FILE="${DEST_DIR}/remove-unused-snaps"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SOURCE_FILE="${SCRIPT_DIR}/config/remove-unused-snaps.sh"
 INSTALL_PATH="/usr/local/bin/remove-unused-snaps"
 
-log_info "Baixando remove-unused-snaps do Gist..."
-
-mkdir -p "$DEST_DIR"
-
-if ! curl -fSsL "$GIST_URL" -o "$DEST_FILE"; then
-    log_error "Falha ao baixar o script do Gist. Verifique a URL ou sua conexão."
+if [[ ! -f "$SOURCE_FILE" ]]; then
+    log_error "Arquivo de origem não encontrado: $SOURCE_FILE"
     exit 1
 fi
 
-if [[ ! -s "$DEST_FILE" ]]; then
-    log_error "O arquivo baixado está vazio. Abortando."
-    exit 1
-fi
+log_info "Copiando remove-unused-snaps para $INSTALL_PATH..."
 
-log_info "Copiando para $INSTALL_PATH..."
-sudo cp "$DEST_FILE" "$INSTALL_PATH"
+sudo cp "$SOURCE_FILE" "$INSTALL_PATH"
 sudo chmod u+rwx,g+rx,a+rx "$INSTALL_PATH"
 
 log_info "remove-unused-snaps instalado com sucesso em $INSTALL_PATH."

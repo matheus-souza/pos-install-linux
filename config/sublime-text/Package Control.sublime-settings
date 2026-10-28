@@ -1,0 +1,23 @@
+{
+	"installed_packages":
+	[
+		"A File Icon",
+		"BracketHighlighter",
+		"Color Highlight",
+		"Dockerfile Syntax Highlighting",
+		"Dracula Color Scheme",
+		"Emmet",
+		"File Rename",
+		"FileTabRename",
+		"HTMLBeautify",
+		"MarkdownFootnotes",
+		"Material Theme",
+		"Materialize",
+		"Materialize-Appbar",
+		"Package Control",
+		"SideBarEnhancements",
+	],
+	"in_process_packages":
+	[
+	],
+}

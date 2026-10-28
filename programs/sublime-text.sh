@@ -15,11 +15,9 @@ log_error() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $*" >&2
 }
 
-KEYRING="/etc/apt/keyrings/sublimehq-pub.asc"
-SOURCE_LIST="/etc/apt/sources.list.d/sublime-text.sources"
-CONFIG_DIR="$HOME/.config/sublime-text"
-USER_DIR="${CONFIG_DIR}/Packages/User"
-INSTALLED_PACKAGES_DIR="${CONFIG_DIR}/Installed Packages"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PREF_SRC="${SCRIPT_DIR}/../config/sublime-text/Preferences.sublime-settings"
+PKGCTRL_SRC="${SCRIPT_DIR}/../config/sublime-text/Package Control.sublime-settings"
 
 if dpkg -s sublime-text >/dev/null 2>&1; then
     log_info "Sublime Text já está instalado. Pulando instalação do pacote."
@@ -55,11 +53,20 @@ if [[ ! -f "${INSTALLED_PACKAGES_DIR}/Package Control.sublime-package" ]]; then
         log_error "Falha ao baixar Package Control (ignorado)."
 fi
 
-log_info "Baixando Preferences.sublime-settings..."
-if [[ ! -f "${USER_DIR}/Preferences.sublime-settings" ]]; then
-    wget -qO "${USER_DIR}/Preferences.sublime-settings" \
-        "https://gist.githubusercontent.com/matheus-souza/0641e9fcfb84cccab8c20148224729b9/raw/b3becf6621df144687e0e8f321f4ae832fba7d8b/Preferences.sublime-settings" || \
-        log_error "Falha ao baixar Preferences.sublime-settings (ignorado)."
+log_info "Copiando Preferences.sublime-settings..."
+if [[ -f "$PREF_SRC" ]]; then
+    cp "$PREF_SRC" "${USER_DIR}/Preferences.sublime-settings" || \
+        log_error "Falha ao copiar Preferences.sublime-settings (ignorado)."
+else
+    log_error "Arquivo de origem não encontrado: $PREF_SRC (ignorado)."
+fi
+
+log_info "Copiando Package Control.sublime-settings..."
+if [[ -f "$PKGCTRL_SRC" ]]; then
+    cp "$PKGCTRL_SRC" "${USER_DIR}/Package Control.sublime-settings" || \
+        log_error "Falha ao copiar Package Control.sublime-settings (ignorado)."
+else
+    log_error "Arquivo de origem não encontrado: $PKGCTRL_SRC (ignorado)."
 fi
 
 log_info "Sublime Text configurado com sucesso."

@@ -85,11 +85,14 @@ for ext in "${VSCODE_EXTENSIONS[@]}"; do
 done
 
 log_info "Baixando settings.json..."
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SETTINGS_SRC="${SCRIPT_DIR}/../config/vscode/settings.json"
 mkdir -p "$(dirname "$SETTINGS_FILE")"
-if [[ ! -f "$SETTINGS_FILE" ]]; then
-    wget -qO "$SETTINGS_FILE" \
-        "https://gist.githubusercontent.com/matheus-souza/403a803e224de02742a072ca809a0df0/raw/b7c2c3ab4dbe8374a7c7f6b7e50589b3a41fef45/vscode.settings.json" || \
-        log_error "Falha ao baixar settings.json (ignorado)."
+if [[ -f "$SETTINGS_SRC" ]]; then
+    cp "$SETTINGS_SRC" "$SETTINGS_FILE" || \
+        log_error "Falha ao copiar settings.json (ignorado)."
+else
+    log_error "Arquivo de origem não encontrado: $SETTINGS_SRC (ignorado)."
 fi
 
 # Configura DDE file manager como padrão para pastas (opcional)
