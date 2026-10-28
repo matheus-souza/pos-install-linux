@@ -44,13 +44,12 @@ O `run.sh` executa, nesta ordem:
 
 1. Atualiza o sistema (`apt update`, `apt upgrade`, `apt dist-upgrade`).
 2. (Opcional) Instala fontes da Microsoft (`ttf-mscorefonts-installer`).
-3. Remove programas desnecessários (use `--full` para remover também LibreOffice e GNOME Terminal).
-4. Instala programas via `apt`.
-5. Instala programas via `snap`.
-6. Executa todos os scripts em `programs/`.
-7. Limpa dependências órfãs e cache do `apt`.
-8. Aplica configurações do sistema (`gsettings`, `/etc/environment`).
-9. Remove snaps não usados.
+3. Instala programas via `apt`.
+4. Instala programas via `snap`.
+5. Executa todos os scripts em `programs/`.
+6. Limpa dependências órfãs e cache do `apt`.
+7. Aplica configurações do sistema (`gsettings`, `/etc/environment`).
+8. Remove snaps não usados.
 
 Você também pode executar scripts individualmente:
 
@@ -69,7 +68,6 @@ bash programs/zsh.sh
 | `run.sh` | Orquestra toda a pós-instalação. |
 | `programs_to_install_with_apt.sh` | Instala pacotes via `apt` (idempotente). |
 | `programs_to_install_with_snap.sh` | Instala pacotes via `snap` (idempotente). |
-| `programs_to_remove.sh` | Remove programas desnecessários (`--full` para mais). |
 | `configure_rm_unused_snaps.sh` | Instala o utilitário `remove-unused-snaps`. |
 
 ### Scripts em `programs/`

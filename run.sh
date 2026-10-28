@@ -35,11 +35,6 @@ cleanup_locks() {
 
 trap cleanup_locks EXIT
 
-programs_to_remove() {
-    log_info "Removendo programas desnecessários..."
-    "${SCRIPT_DIR}/programs_to_remove.sh"
-}
-
 programs_to_install_with_apt() {
     log_info "Instalando programas via apt..."
     "${SCRIPT_DIR}/programs_to_install_with_apt.sh"
@@ -79,35 +74,28 @@ main() {
     # 2. (Opcional) Instalar fontes da Microsoft
     # sudo apt install -y ttf-mscorefonts-installer
 
-    # 3. Remover programas desnecessários
-    programs_to_remove
-
-    # 4. Atualizar novamente após remoções
-    update_upgrade
-    autoremove_autoclean
-
-    # 5. Instalar programas via apt
+    # 3. Instalar programas via apt
     programs_to_install_with_apt
 
-    # 6. Instalar programas via snap
+    # 4. Instalar programas via snap
     programs_to_install_with_snap
 
-    # 7. Executar scripts de configuração em programs/
+    # 5. Executar scripts de configuração em programs/
     for program in "${SCRIPT_DIR}"/programs/*.sh; do
         log_info "Executando $(basename "${program}")..."
         bash "${program}"
     done
 
-    # 8. Limpeza final
+    # 6. Limpeza final
     update_upgrade
     autoremove_autoclean
 
-    # 9. Configurações do sistema
+    # 7. Configurações do sistema
     log_info "Aplicando configurações do sistema..."
     gsettings set org.freedesktop.ibus.panel.emoji unicode-hotkey "@as []" || \
         log_error "Falha ao aplicar gsettings do ibus (ignorado)."
 
-    # 10. Remover snaps não usados
+    # 8. Remover snaps não usados
     configure_rm_unused_snaps
 
     log_info "=== Pós-instalação concluída com sucesso ==="
