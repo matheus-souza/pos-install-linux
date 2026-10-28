@@ -3,9 +3,7 @@ set -euo pipefail
 
 # ============================================================================
 # programs_to_remove.sh — Remove programas desnecessários
-# Uso: ./programs_to_remove.sh [--full]
-#   Sem --full: remove apenas navegadores/jogos on-board e apps óbvios.
-#   Com --full: remove também LibreOffice, GNOME Terminal e relacionados.
+# Remove apenas pacotes que não são do GNOME nem do LibreOffice.
 # ============================================================================
 
 log_info() {
@@ -15,12 +13,6 @@ log_info() {
 log_error() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $*" >&2
 }
-
-REMOVE_FULL=false
-
-if [[ "${1:-}" == "--full" ]]; then
-    REMOVE_FULL=true
-fi
 
 remove_if_installed() {
     local pkg="$1"
@@ -34,7 +26,8 @@ remove_if_installed() {
 
 log_info "Iniciando remoção de programas..."
 
-# Navegadores e apps que não são usados no Zorin DDE
+# Navegadores e apps que não são usados no Zorin DDE.
+# Pacotes do GNOME e do LibreOffice são mantidos intencionalmente.
 PROGRAMS_TO_REMOVE=(
     firefox
     firefox-locale-ar
@@ -51,46 +44,11 @@ PROGRAMS_TO_REMOVE=(
     thunderbird
     onboard
     onboard-common
-    gnome-2048
-    gnome-chess
-    gnome-mahjongg
-    gnome-sudoku
 )
 
 for program_name in "${PROGRAMS_TO_REMOVE[@]}"; do
     remove_if_installed "$program_name"
 done
 
-if $REMOVE_FULL; then
-    log_info "Modo --full ativado: removendo LibreOffice, GNOME Terminal e relacionados..."
-    FULL_REMOVE=(
-        libreoffice
-        libreoffice-base-core
-        libreoffice-calc
-        libreoffice-common
-        libreoffice-core
-        libreoffice-draw
-        libreoffice-gtk
-        libreoffice-gtk2
-        libreoffice-gtk3
-        libreoffice-help-common
-        libreoffice-help-pt
-        libreoffice-impress
-        libreoffice-l10n-pt
-        libreoffice-math
-        libreoffice-style-colibre
-        libreoffice-style-tango
-        libreoffice-writer
-        gnome-screenshot
-        gnome-calculator
-        gnome-terminal
-        gnome-terminal-data
-    )
-    for program_name in "${FULL_REMOVE[@]}"; do
-        remove_if_installed "$program_name"
-    done
-else
-    log_info "Modo padrão: pulando remoção de LibreOffice e GNOME Terminal. Use --full para removê-los."
-fi
-
 log_info "Remoção concluída."
+log_info "Pacotes do GNOME e do LibreOffice foram mantidos."
