@@ -126,7 +126,7 @@ install_opera() {
             'Types: deb' \
             'URIs: https://deb.opera.com/opera-stable' \
             'Suites: stable' \
-            'Components: main' \
+            'Components: non-free' \
             "Signed-By: /etc/apt/keyrings/opera.gpg" | \
             sudo tee /etc/apt/sources.list.d/opera.sources > /dev/null
     else
