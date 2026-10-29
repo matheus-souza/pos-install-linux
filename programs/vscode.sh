@@ -33,7 +33,12 @@ else
     sudo chmod a+r "$KEYRING"
 
     log_info "Adicionando repositório do VS Code..."
-    echo "deb [arch=amd64 signed-by=${KEYRING}] https://packages.microsoft.com/repos/code stable main" | \
+    printf '%s\n' \
+        'Types: deb' \
+        'URIs: https://packages.microsoft.com/ubuntu/24.04/prod' \
+        'Suites: noble' \
+        'Components: main' \
+        "Signed-By: ${KEYRING}" | \
         sudo tee "$SOURCE_LIST" > /dev/null
 
     log_info "Atualizando repositórios e instalando code..."
