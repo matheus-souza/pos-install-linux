@@ -20,6 +20,9 @@ PREF_SRC="${SCRIPT_DIR}/../config/sublime-text/Preferences.sublime-settings"
 PKGCTRL_SRC="${SCRIPT_DIR}/../config/sublime-text/Package Control.sublime-settings"
 KEYRING="/etc/apt/keyrings/sublimehq-pub.asc"
 SOURCE_LIST="/etc/apt/sources.list.d/sublime-text.sources"
+CONFIG_DIR="$HOME/.config/sublime-text"
+USER_DIR="${CONFIG_DIR}/Packages/User"
+INSTALLED_PACKAGES_DIR="${CONFIG_DIR}/Installed Packages"
 
 if dpkg -s sublime-text >/dev/null 2>&1; then
     log_info "Sublime Text já está instalado. Pulando instalação do pacote."
