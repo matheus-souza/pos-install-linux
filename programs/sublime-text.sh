@@ -27,7 +27,7 @@ else
     log_info "Baixando chave GPG do Sublime Text..."
     sudo mkdir -p /etc/apt/keyrings
     wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | \
-        sudo gpg --dearmor -o "$KEYRING"
+        sudo tee "$KEYRING" > /dev/null
     sudo chmod a+r "$KEYRING"
 
     log_info "Adicionando repositório do Sublime Text..."
