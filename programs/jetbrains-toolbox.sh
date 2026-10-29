@@ -24,15 +24,18 @@ if [[ -x "$INSTALL_SCRIPT" ]]; then
 fi
 
 log_info "Baixando JetBrains Toolbox..."
-curl -fsSL "https://www.jetbrains.com/toolbox/app/" -o /tmp/jetbrains-toolbox.html 2>/dev/null || true
 
-# Tenta extrair a URL do tarball Linux da página do JetBrains
-TOOLBOX_URL=$(grep -o 'https://download-cf.jetbrains.com/toolbox/jetbrains-toolbox-[0-9.]*-linux.tar.gz' /tmp/jetbrains-toolbox.html 2>/dev/null | head -1 || true)
+# Tenta detectar a URL mais recente da página do JetBrains
+TOOLBOX_URL=""
+if curl -fsSL "https://www.jetbrains.com/toolbox/app/" -o /tmp/jetbrains-toolbox.html 2>/dev/null; then
+    TOOLBOX_URL=$(grep -o 'https://download-cf.jetbrains.com/toolbox/jetbrains-toolbox-[0-9.]*-linux.tar.gz' /tmp/jetbrains-toolbox.html 2>/dev/null | head -1 || true)
+fi
 
 if [[ -z "$TOOLBOX_URL" ]]; then
     log_error "Não foi possível detectar a URL mais recente do JetBrains Toolbox."
-    log_info "Tente acessar https://www.jetbrains.com/toolbox/app/ e baixar manualmente."
-    exit 1
+    log_info "Para instalar manualmente, acesse: https://www.jetbrains.com/toolbox/app/"
+    log_info "Pulando JetBrains Toolbox (não crítico)."
+    exit 0
 fi
 
 TOOLBOX_TARBALL="${DOWNLOAD_DIR}/$(basename "$TOOLBOX_URL")"
