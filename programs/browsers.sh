@@ -93,7 +93,7 @@ install_vivaldi() {
     if [[ ! -f /etc/apt/sources.list.d/vivaldi.sources ]]; then
         printf '%s\n' \
             'Types: deb' \
-            'URIs: https://repo.vivaldi.com/archive/' \
+            'URIs: https://repo.vivaldi.com/archive/deb/' \
             'Suites: stable' \
             'Components: main' \
             "Signed-By: /etc/apt/keyrings/vivaldi.gpg" | \
