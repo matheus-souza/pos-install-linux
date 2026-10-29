@@ -39,8 +39,8 @@ else
     if [[ ! -f "$SOURCE_LIST" ]]; then
         printf '%s\n' \
             'Types: deb' \
-            'URIs: https://packages.microsoft.com/ubuntu/24.04/prod' \
-            'Suites: noble' \
+            'URIs: https://packages.microsoft.com/repos/code' \
+            'Suites: stable' \
             'Components: main' \
             "Signed-By: ${KEYRING}" | \
             sudo tee "$SOURCE_LIST" > /dev/null
