@@ -26,8 +26,19 @@ install_brave() {
         sudo gpg --dearmor -o /etc/apt/keyrings/brave-browser.gpg
     sudo chmod a+r /etc/apt/keyrings/brave-browser.gpg
 
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/brave-browser.gpg] https://brave-browser-apt-release.s3.brave.com/ stable main" | \
-        sudo tee /etc/apt/sources.list.d/brave-browser.sources > /dev/null
+    # Remover qualquer fonte do Brave pré-existente com chave diferente
+    sudo rm -f /etc/apt/sources.list.d/*brave*.sources /etc/apt/sources.list.d/*brave*.list 2>/dev/null || true
+    if [[ ! -f /etc/apt/sources.list.d/brave-browser.sources ]]; then
+        printf '%s\n' \
+            'Types: deb' \
+            'URIs: https://brave-browser-apt-release.s3.brave.com/' \
+            'Suites: stable' \
+            'Components: main' \
+            "Signed-By: /etc/apt/keyrings/brave-browser.gpg" | \
+            sudo tee /etc/apt/sources.list.d/brave-browser.sources > /dev/null
+    else
+        log_info "Repositório do Brave já está configurado. Pulando."
+    fi
 
     sudo apt update
     sudo apt install -y brave-browser
@@ -46,8 +57,19 @@ install_edge() {
         sudo gpg --dearmor -o /etc/apt/keyrings/microsoft-edge.gpg
     sudo chmod a+r /etc/apt/keyrings/microsoft-edge.gpg
 
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/microsoft-edge.gpg] https://packages.microsoft.com/repos/edge stable main" | \
-        sudo tee /etc/apt/sources.list.d/microsoft-edge.sources > /dev/null
+    # Remover qualquer fonte do Edge pré-existente com chave diferente
+    sudo rm -f /etc/apt/sources.list.d/*microsoft-edge*.sources /etc/apt/sources.list.d/*microsoft-edge*.list 2>/dev/null || true
+    if [[ ! -f /etc/apt/sources.list.d/microsoft-edge.sources ]]; then
+        printf '%s\n' \
+            'Types: deb' \
+            'URIs: https://packages.microsoft.com/repos/edge' \
+            'Suites: stable' \
+            'Components: main' \
+            "Signed-By: /etc/apt/keyrings/microsoft-edge.gpg" | \
+            sudo tee /etc/apt/sources.list.d/microsoft-edge.sources > /dev/null
+    else
+        log_info "Repositório do Edge já está configurado. Pulando."
+    fi
 
     sudo apt update
     sudo apt install -y microsoft-edge-stable
@@ -66,8 +88,19 @@ install_vivaldi() {
         sudo gpg --dearmor -o /etc/apt/keyrings/vivaldi.gpg
     sudo chmod a+r /etc/apt/keyrings/vivaldi.gpg
 
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/vivaldi.gpg] https://repo.vivaldi.com/archive/ stable main" | \
-        sudo tee /etc/apt/sources.list.d/vivaldi.sources > /dev/null
+    # Remover qualquer fonte do Vivaldi pré-existente com chave diferente
+    sudo rm -f /etc/apt/sources.list.d/*vivaldi*.sources /etc/apt/sources.list.d/*vivaldi*.list 2>/dev/null || true
+    if [[ ! -f /etc/apt/sources.list.d/vivaldi.sources ]]; then
+        printf '%s\n' \
+            'Types: deb' \
+            'URIs: https://repo.vivaldi.com/archive/' \
+            'Suites: stable' \
+            'Components: main' \
+            "Signed-By: /etc/apt/keyrings/vivaldi.gpg" | \
+            sudo tee /etc/apt/sources.list.d/vivaldi.sources > /dev/null
+    else
+        log_info "Repositório do Vivaldi já está configurado. Pulando."
+    fi
 
     sudo apt update
     sudo apt install -y vivaldi-stable
@@ -86,8 +119,19 @@ install_opera() {
         sudo gpg --dearmor -o /etc/apt/keyrings/opera.gpg
     sudo chmod a+r /etc/apt/keyrings/opera.gpg
 
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/opera.gpg] https://deb.opera.com/opera-stable stable main" | \
-        sudo tee /etc/apt/sources.list.d/opera.sources > /dev/null
+    # Remover qualquer fonte do Opera pré-existente com chave diferente
+    sudo rm -f /etc/apt/sources.list.d/*opera*.sources /etc/apt/sources.list.d/*opera*.list 2>/dev/null || true
+    if [[ ! -f /etc/apt/sources.list.d/opera.sources ]]; then
+        printf '%s\n' \
+            'Types: deb' \
+            'URIs: https://deb.opera.com/opera-stable' \
+            'Suites: stable' \
+            'Components: main' \
+            "Signed-By: /etc/apt/keyrings/opera.gpg" | \
+            sudo tee /etc/apt/sources.list.d/opera.sources > /dev/null
+    else
+        log_info "Repositório do Opera já está configurado. Pulando."
+    fi
 
     sudo apt update
     sudo apt install -y opera-stable
