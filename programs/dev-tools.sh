@@ -34,8 +34,10 @@ if [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]]; then
     set -u
     if ! sdk list java 2>/dev/null | grep -q "21.0.9"; then
         log_info "Instalando Java 21 via SDKMAN..."
+        set +u
         sdk install java 21.0.9.0+116386-jbr || \
             log_error "Falha ao instalar Java 21 via SDKMAN (ignorando)."
+        set -u
     else
         log_info "Java 21 já está instalado via SDKMAN."
     fi
