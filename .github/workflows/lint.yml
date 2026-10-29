@@ -22,5 +22,4 @@ jobs:
             programs/*.sh \
             programs_to_install_with_apt.sh \
             programs_to_install_with_snap.sh \
-            programs_to_remove.sh \
             configure_rm_unused_snaps.sh
