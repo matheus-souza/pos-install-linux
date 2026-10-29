@@ -35,10 +35,7 @@ else
     log_info "Adicionando repositório do VS Code..."
     # Remover qualquer fonte do Microsoft pré-existente com chave diferente
     # para evitar conflito de Signed-By
-    if [[ -f "$SOURCE_LIST" ]] && ! grep -q "packages.microsoft.gpg" "$SOURCE_LIST"; then
-        log_info "Removendo fonte do Microsoft com chave diferente..."
-        sudo rm -f "$SOURCE_LIST"
-    fi
+    sudo rm -f /etc/apt/sources.list.d/*microsoft*.sources /etc/apt/sources.list.d/*microsoft*.list 2>/dev/null || true
     if [[ ! -f "$SOURCE_LIST" ]]; then
         printf '%s\n' \
             'Types: deb' \
