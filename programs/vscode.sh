@@ -33,9 +33,13 @@ else
     sudo chmod a+r "$KEYRING"
 
     log_info "Adicionando repositório do VS Code..."
-    if [[ -f "$SOURCE_LIST" ]] && grep -q "packages.microsoft.com" "$SOURCE_LIST"; then
-        log_info "Repositório do VS Code já está configurado. Pulando."
-    else
+    # Remover qualquer fonte do Microsoft pré-existente com chave diferente
+    # para evitar conflito de Signed-By
+    if [[ -f "$SOURCE_LIST" ]] && ! grep -q "packages.microsoft.gpg" "$SOURCE_LIST"; then
+        log_info "Removendo fonte do Microsoft com chave diferente..."
+        sudo rm -f "$SOURCE_LIST"
+    fi
+    if [[ ! -f "$SOURCE_LIST" ]]; then
         printf '%s\n' \
             'Types: deb' \
             'URIs: https://packages.microsoft.com/ubuntu/24.04/prod' \
@@ -43,6 +47,8 @@ else
             'Components: main' \
             "Signed-By: ${KEYRING}" | \
             sudo tee "$SOURCE_LIST" > /dev/null
+    else
+        log_info "Repositório do VS Code já está configurado. Pulando."
     fi
 
     log_info "Atualizando repositórios e instalando code..."
