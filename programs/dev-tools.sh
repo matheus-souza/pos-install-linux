@@ -26,8 +26,12 @@ fi
 
 # 2. Java via SDKMAN (apenas se sdkman estiver disponível)
 if [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]]; then
+    # Desabilitar set -u temporariamente porque sdkman-init.sh referencia
+    # variáveis que podem não estar definidas
+    set +u
     # shellcheck source=/dev/null
     source "$SDKMAN_DIR/bin/sdkman-init.sh"
+    set -u
     if ! sdk list java 2>/dev/null | grep -q "21.0.9"; then
         log_info "Instalando Java 21 via SDKMAN..."
         sdk install java 21.0.9.0+116386-jbr || \
