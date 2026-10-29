@@ -6,13 +6,8 @@ set -euo pipefail
 # Usa signed-by com keyring (método moderno do apt, sem apt-key)
 # ============================================================================
 
-log_info() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $*"
-}
-
-log_error() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $*" >&2
-}
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/colors.sh"
 
 KEYRING="/usr/share/keyrings/google-chrome.gpg"
 SOURCE_LIST="/etc/apt/sources.list.d/google-chrome.sources"
@@ -42,4 +37,4 @@ log_info "Atualizando repositórios e instalando google-chrome-stable..."
 sudo apt update
 sudo apt install -y google-chrome-stable
 
-log_info "Google Chrome instalado com sucesso."
+log_success "Google Chrome instalado com sucesso."
