@@ -18,6 +18,8 @@ log_error() {
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PREF_SRC="${SCRIPT_DIR}/../config/sublime-text/Preferences.sublime-settings"
 PKGCTRL_SRC="${SCRIPT_DIR}/../config/sublime-text/Package Control.sublime-settings"
+KEYRING="/etc/apt/keyrings/sublimehq-pub.asc"
+SOURCE_LIST="/etc/apt/sources.list.d/sublime-text.sources"
 
 if dpkg -s sublime-text >/dev/null 2>&1; then
     log_info "Sublime Text já está instalado. Pulando instalação do pacote."
