@@ -33,13 +33,17 @@ else
     sudo chmod a+r "$KEYRING"
 
     log_info "Adicionando repositório do VS Code..."
-    printf '%s\n' \
-        'Types: deb' \
-        'URIs: https://packages.microsoft.com/ubuntu/24.04/prod' \
-        'Suites: noble' \
-        'Components: main' \
-        "Signed-By: ${KEYRING}" | \
-        sudo tee "$SOURCE_LIST" > /dev/null
+    if [[ -f "$SOURCE_LIST" ]] && grep -q "packages.microsoft.com" "$SOURCE_LIST"; then
+        log_info "Repositório do VS Code já está configurado. Pulando."
+    else
+        printf '%s\n' \
+            'Types: deb' \
+            'URIs: https://packages.microsoft.com/ubuntu/24.04/prod' \
+            'Suites: noble' \
+            'Components: main' \
+            "Signed-By: ${KEYRING}" | \
+            sudo tee "$SOURCE_LIST" > /dev/null
+    fi
 
     log_info "Atualizando repositórios e instalando code..."
     sudo apt update
