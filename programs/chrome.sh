@@ -7,7 +7,9 @@ set -euo pipefail
 # ============================================================================
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/../lib/colors.sh"
+# shellcheck source=../scripts/lib/colors.sh
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/../scripts/lib/colors.sh"
 
 KEYRING="/usr/share/keyrings/google-chrome.gpg"
 SOURCE_LIST="/etc/apt/sources.list.d/google-chrome.sources"
